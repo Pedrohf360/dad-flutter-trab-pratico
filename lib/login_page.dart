@@ -13,7 +13,14 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
+  var userData;
   bool _isLoading = false;
+  int _userType = 0;
+  var _userTypes= {
+    0: "Selecione o tipo de Usuário!",
+    1: 'Associado',
+    2: 'Gerencial'
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             headerSection(),
             textSection(),
+            _hintDown(),
             buttonSection(),
           ],
         ),
@@ -37,28 +45,35 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  signIn(String email, pass) async {
+  signIn(String login, pass) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     Map data = {
-      'email': email,
-      'password': pass
+      'usuario': login,
+      'senha': pass
     };
     var jsonResponse = null;
-    var response = await http.post("YOUR_BASE_URL", body: data);
+    var response = await http.post("http://192.168.1.100:8080/login.php", body: data);
     if(response.statusCode == 200) {
-      jsonResponse = json.decode(response.body);
-      if(jsonResponse != null) {
-        setState(() {
-          _isLoading = false;
-        });
-        sharedPreferences.setString("token", jsonResponse['token']);
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
-      }
+      // jsonResponse = json.decode(response.body);
+      //if(jsonResponse != null) {
+        //setState(() {
+          //_isLoading = false;
+        //});
+        sharedPreferences.setString("name", login);
+
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context ) => MainPage()), (Route<dynamic> route) => false);
+      //}
     }
     else {
       setState(() {
         _isLoading = false;
       });
+      Scaffold(
+        appBar: AppBar(
+          title: Text('SnackBar Demo'),
+        ),
+        body: SnackBar(content: Text('Yay! A SnackBar!')) // Complete this code in the next step.
+      );
       print(response.body);
     }
   }
@@ -78,11 +93,45 @@ class _LoginPageState extends State<LoginPage> {
         },
         elevation: 0.0,
         color: Colors.purple,
-        child: Text("Sign In", style: TextStyle(color: Colors.white70)),
+        child: Text("Entrar", style: TextStyle(color: Colors.white70)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       ),
     );
   }
+
+  DropdownButton _hintDown() => DropdownButton<String>(
+
+    items: [
+      DropdownMenuItem<String>(
+        value: '0',
+        child: Text(
+          "",
+        ),
+      ),
+      DropdownMenuItem<String>(
+        value: '1',
+        child: Text(
+          "Associado",
+        ),
+      ),
+      DropdownMenuItem<String>(
+        value: '2',
+        child: Text(
+          "Gerencial",
+        ),
+      ),
+    ],
+    onChanged: (value) {
+      _userType = int.parse(value);
+      print("value: $value");
+    },
+    hint: Text(
+      _userTypes[_userType],
+      style: TextStyle(
+        color: Colors.black,
+      ),
+    ),
+  );
 
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
@@ -99,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.email, color: Colors.white70),
-              hintText: "Email",
+              hintText: "CPF",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -112,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.lock, color: Colors.white70),
-              hintText: "Password",
+              hintText: "Senha",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -126,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       margin: EdgeInsets.only(top: 50.0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("ONG",
+      child: Text("ONG ASPEC Solidária",
           style: TextStyle(
               color: Colors.white70,
               fontSize: 40.0,

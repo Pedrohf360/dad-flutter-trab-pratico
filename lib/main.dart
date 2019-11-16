@@ -5,14 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:dad_app/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import './about_page.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "ONG",
+      title: "ONG ASPEC Solidária",
       debugShowCheckedModeBanner: false,
       home: MainPage(),
       theme: ThemeData(
@@ -30,6 +32,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
 
   SharedPreferences sharedPreferences;
+  String _userName = '';
 
   @override
   void initState() {
@@ -39,13 +42,20 @@ class _MainPageState extends State<MainPage> {
 
   checkLoginStatus() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    if(sharedPreferences.getString("token") == null) {
+
+    setState(() {
+      _userName = sharedPreferences.getString('name') ?? '';
+    });
+
+    sharedPreferences.clear();
+    if(_userName == '') {
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()), (Route<dynamic> route) => false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text("ONG", style: TextStyle(color: Colors.white)),
@@ -61,7 +71,53 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       body: Center(child: Text("Main Page")),
-      drawer: Drawer(),
+      drawer: new Drawer(
+        child: ListView(
+          children: <Widget>[
+            new UserAccountsDrawerHeader(
+                accountName: new Text(_userName),
+                accountEmail: null,
+                currentAccountPicture: new CircleAvatar(
+                  backgroundImage: new NetworkImage('https://thewanderers.travel/data_content/meet-the-wanderers/blank-user-img.jpg'),
+                ),),
+            new ListTile(
+              title: new Text('Área do Associado'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.push(context, new MaterialPageRoute(
+                builder: (BuildContext contect) => new AboutPage())
+                );
+              },
+            ),
+            new Divider(
+              color: Colors.black,
+              height: 5.0,
+            ),
+            new ListTile(
+              title: new Text('Área Gerencial'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.push(context, new MaterialPageRoute(
+                    builder: (BuildContext contect) => new AboutPage())
+                );
+              },
+            ),
+            new Divider(
+              color: Colors.black,
+              height: 5.0,
+            ),
+            new ListTile(
+              title: new Text('Sobre'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.push(context, new MaterialPageRoute(
+                    builder: (BuildContext contect) => new AboutPage())
+                );
+              },
+            )
+          ],
+        )
+      ),
     );
   }
 }
