@@ -15,12 +15,8 @@ class _LoginPageState extends State<LoginPage> {
 
   var userData;
   bool _isLoading = false;
-  int _userType = 0;
-  var _userTypes= {
-    0: "Selecione o tipo de Usuário!",
-    1: 'Associado',
-    2: 'Gerencial'
-  };
+  String _currentUserType = "Associado";
+  var _userTypes = ['Associado', 'Gerencial'];
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             headerSection(),
             textSection(),
-            _hintDown(),
+            Center(child: _hintDown()),
             buttonSection(),
           ],
         ),
@@ -45,14 +41,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  signIn(String login, pass) async {
+  signIn(String login, pass, userType) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     Map data = {
       'usuario': login,
-      'senha': pass
+      'senha': pass,
+      'tipoUsuario': userType
     };
     var jsonResponse = null;
-    var response = await http.post("http://192.168.1.100:8080/login.php", body: data);
+    var response = await http.post("http://10.206.75.133:8080/login.php", body: data);
     if(response.statusCode == 200) {
       // jsonResponse = json.decode(response.body);
       //if(jsonResponse != null) {
@@ -60,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
           //_isLoading = false;
         //});
         sharedPreferences.setString("name", login);
+        sharedPreferences.setString("tipo_usuario", _currentUserType.toLowerCase());
 
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context ) => MainPage()), (Route<dynamic> route) => false);
       //}
@@ -89,49 +87,38 @@ class _LoginPageState extends State<LoginPage> {
           setState(() {
             _isLoading = true;
           });
-          signIn(emailController.text, passwordController.text);
+          signIn(emailController.text, passwordController.text, _currentUserType);
         },
         elevation: 0.0,
         color: Colors.purple,
-        child: Text("Entrar", style: TextStyle(color: Colors.white70)),
+        child: Center(child: Text("Entrar", style: TextStyle(color: Colors.white70))),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       ),
     );
   }
 
   DropdownButton _hintDown() => DropdownButton<String>(
+    items: _userTypes.map((String dropDownStringItem) {
+      return DropdownMenuItem<String>(
+        value: dropDownStringItem,
+        child: Text(dropDownStringItem),
+      );
+    }).toList(),
 
-    items: [
-      DropdownMenuItem<String>(
-        value: '0',
-        child: Text(
-          "",
-        ),
-      ),
-      DropdownMenuItem<String>(
-        value: '1',
-        child: Text(
-          "Associado",
-        ),
-      ),
-      DropdownMenuItem<String>(
-        value: '2',
-        child: Text(
-          "Gerencial",
-        ),
-      ),
-    ],
-    onChanged: (value) {
-      _userType = int.parse(value);
-      print("value: $value");
+    onChanged: (String newValueSelected){
+      _onDropDownItemSelected(newValueSelected);
     },
-    hint: Text(
-      _userTypes[_userType],
-      style: TextStyle(
-        color: Colors.black,
-      ),
+
+    value: this._currentUserType,
+
     ),
   );
+
+    void _onDropDownItemSelected(String newValueSelected) {
+      setState(() {
+        this._currentUserType = newValueSelected;
+      });
+    }
 
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();

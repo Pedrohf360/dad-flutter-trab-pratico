@@ -14,8 +14,9 @@ if (!validaCPF($cpf)) {
 
 $usuario = mysqli_real_escape_string($conexao, $cpf);
 $senha = mysqli_real_escape_string($conexao, $_POST['senha']);
+$tipoUsuario = mysqli_real_escape_string($conexao, $_POST['tipoUsuario']);
 
-$query = "select usuario, foto from usuario where cpf = '{$cpf}' and senha = md5('{$senha}')";
+$query = "select usuario, foto from usuario where cpf = '{$cpf}' and senha = md5('{$senha}') and tipo = '{$tipoUsuario}'";
 
 $result = mysqli_query($conexao, $query);
 

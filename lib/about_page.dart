@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
           appBar: new AppBar(
             title: new Text('About Page'),
           ),
-          body: Center(child: Text('Esse APP foi desenvolvido para a ONG x com o objetivo de ajudar no controle de...'),),
+          body: Center(child: Text('Esse APP foi desenvolvido para a ONG ASPEC Solidária com o objetivo de ajudar no controle de Associados e Gerentes.'),),
         );
       }
     }

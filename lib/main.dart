@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+import 'package:dad_app/associado/associado_page.dart';
+import 'package:dad_app/associado/cadastro_associado.dart';
+import 'package:dad_app/gerencial/cadastro_gerencial.dart';
+import 'package:dad_app/gerencial/gerencial_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -33,6 +37,7 @@ class _MainPageState extends State<MainPage> {
 
   SharedPreferences sharedPreferences;
   String _userName = '';
+  String _userType = '';
 
   @override
   void initState() {
@@ -45,6 +50,7 @@ class _MainPageState extends State<MainPage> {
 
     setState(() {
       _userName = sharedPreferences.getString('name') ?? '';
+      _userType = sharedPreferences.getString('tipo_usuario') ?? '';
     });
 
     sharedPreferences.clear();
@@ -70,22 +76,22 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: Center(child: Text("Main Page")),
+      body: Center(child: Text("Página Principal")),
       drawer: new Drawer(
         child: ListView(
           children: <Widget>[
             new UserAccountsDrawerHeader(
                 accountName: new Text(_userName),
-                accountEmail: null,
+                accountEmail: new Text(_userType.toUpperCase()),
                 currentAccountPicture: new CircleAvatar(
-                  backgroundImage: new NetworkImage('https://thewanderers.travel/data_content/meet-the-wanderers/blank-user-img.jpg'),
+                  backgroundImage: new NetworkImage('https://uybor.uz/borless/avtobor/img/user-images/user_no_photo_300x300.png'),
                 ),),
             new ListTile(
-              title: new Text('Área do Associado'),
+              title: new Text(_userType == 'gerencial'? 'Ver Associados' : 'Área do Associado'),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.push(context, new MaterialPageRoute(
-                builder: (BuildContext contect) => new AboutPage())
+                builder: (BuildContext contect) => new AssociadoPage())
                 );
               },
             ),
@@ -94,17 +100,45 @@ class _MainPageState extends State<MainPage> {
               height: 5.0,
             ),
             new ListTile(
+              title: new Text('Cadastro de Associado'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.push(context, new MaterialPageRoute(
+                    builder: (BuildContext contect) => new AssociadoCadPage())
+                );
+              },
+            ),
+            new Divider(
+              color: Colors.black,
+              height: 5.0,
+            ),
+            Visibility(
+              visible: _userType == 'gerencial',
+              child: new ListTile(
               title: new Text('Área Gerencial'),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.push(context, new MaterialPageRoute(
-                    builder: (BuildContext contect) => new AboutPage())
+                    builder: (BuildContext contect) => new GerencialPage())
                 );
               },
+            ),
             ),
             new Divider(
               color: Colors.black,
               height: 5.0,
+            ),
+            Visibility(
+             visible: _userType == 'gerencial',
+             child:  new ListTile(
+               title: new Text('Cadastro de Gerencial'),
+               onTap: () {
+                 Navigator.of(context).pop();
+                 Navigator.push(context, new MaterialPageRoute(
+                     builder: (BuildContext contect) => new GerencialCadPage())
+                 );
+               },
+             ),
             ),
             new ListTile(
               title: new Text('Sobre'),
